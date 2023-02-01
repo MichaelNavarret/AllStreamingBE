@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
-import com.example.demo.repository.AccountRepository;
 import com.example.demo.service.AccountService;
 
 
@@ -32,42 +30,32 @@ public class AccountController {
 	@Autowired
 	private AccountService accountService;
 	
-	@Autowired
-	private AccountRepository accountRepository;
 	
 	//Get all Accounts
 		@GetMapping("/accounts")
-		public List<Account> listarCuentas(){
-			return accountService.getAll();
+		public ResponseEntity<List<Account>> listarCuentas(){
+			return ResponseEntity.ok(accountService.getAll());
 		}
 		
 		@PostMapping("/create")
-		public Account crateAccount(@RequestBody Account account) {
-			return accountService.createAccount(account);
-		//return accountRepository.save(account);
+		public ResponseEntity<Account> crateAccount(@RequestBody Account account) {
+			return ResponseEntity.ok(accountService.createAccount(account));
 		}
 		
 		@GetMapping("/accounts/{id}")
 		public ResponseEntity<Account> getAccountById(@PathVariable Long id) {
-			return accountService.findByYd(id);
+			return ResponseEntity.ok(accountService.findByYd(id));
 		}
 		
 		@PutMapping("/accounts/{id}")
 		public ResponseEntity<Account> updateAccount(@PathVariable Long id,
 												@RequestBody Account accountDetails){
-			return accountService.updateAccount(id, accountDetails);
+			return ResponseEntity.ok(accountService.updateAccount(id, accountDetails));
 		}
 		
 		@DeleteMapping("/accounts/{id}")
-	    public ResponseEntity < Map < String, Boolean >> deleteAccount(@PathVariable Long id) {
-			
-			Account account = accountRepository.findById(id)
-					.orElseThrow(() -> new ResourceNotFoundException
-							("La cuenta no existe con el id: " + id));
-	        accountRepository.delete(account);
-	        Map < String, Boolean > response = new HashMap < > ();
-	        response.put("deleted", Boolean.TRUE);
-	        return ResponseEntity.ok(response);
+	    public ResponseEntity< Map < String, Boolean >> deleteAccount(@PathVariable Long id) {
+			return ResponseEntity.ok(accountService.deleteAccount(id));
 	    }
 		
 		@GetMapping("/accounttype")

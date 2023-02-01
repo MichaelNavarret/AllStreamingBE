@@ -1,22 +1,29 @@
 package com.example.demo.service;
 
+import static com.example.demo.util.SpecificationOperation.EQUALS;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.specification.AccountSpecificationBuilder;
-import static com.example.demo.util.SpecificationOperation.EQUALS;
+
+import static java.lang.String.format;
 
 @Service
 public class AccountService {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountService.class);
 	@Autowired
 	private AccountRepository accountRepository;
 
@@ -38,14 +45,14 @@ public class AccountService {
 		return accountRepository.save(account);
 	}
 	
-	public ResponseEntity<Account> findByYd(Long id) {
+	public Account findByYd(Long id) {
 		Account account = accountRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException
 						("La cuenta no existe con el id: " + id));
-		return ResponseEntity.ok(account);
+		return account;
 	}
 	
-	public ResponseEntity<Account> updateAccount(Long id, Account accountDetails) {
+	public Account updateAccount(Long id, Account accountDetails) {
 		Account account = accountRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException
 						("La cuenta no existe con el id: " + id));
@@ -60,7 +67,7 @@ public class AccountService {
 		account.setPassword(accountDetails.getPassword());
 		
 		Account updateAccount = accountRepository.save(account);
-		return ResponseEntity.ok(updateAccount);
+		return updateAccount;
 	}
 
 	public List <Account> getByStateId(final int stateId) {
@@ -71,6 +78,8 @@ public class AccountService {
 
 	public List<Account> searchAccounts( final String typeId, final  String stateId) {
 		// TODO Auto-generated method stub
+		
+		LOGGER.info(format("Valores :  %s, %s", typeId, stateId));
 		AccountSpecificationBuilder builder = new AccountSpecificationBuilder();
 		if(!Strings.isBlank(typeId) && !Strings.isBlank(stateId)) {
 			builder.with(false, "typeId", EQUALS , typeId);
@@ -95,6 +104,17 @@ public class AccountService {
 	private List <Account> findAllByCriteria(final Specification specs){
 		List <Account> result = accountRepository.findAll(specs);
 		return result;
+	}
+
+
+	public Map<String, Boolean> deleteAccount(Long id) {
+		Account account = accountRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException
+						("La cuenta no existe con el id: " + id));
+        accountRepository.delete(account);
+        Map < String, Boolean > response = new HashMap < > ();
+        response.put("deleted", Boolean.TRUE);
+        return response;
 	}
 
 
