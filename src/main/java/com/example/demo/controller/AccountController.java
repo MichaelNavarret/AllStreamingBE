@@ -43,35 +43,19 @@ public class AccountController {
 		
 		@PostMapping("/create")
 		public Account crateAccount(@RequestBody Account account) {
-			return accountRepository.save(account);
+			return accountService.createAccount(account);
+		//return accountRepository.save(account);
 		}
 		
 		@GetMapping("/accounts/{id}")
 		public ResponseEntity<Account> getAccountById(@PathVariable Long id) {
-			Account account = accountRepository.findById(id)
-					.orElseThrow(() -> new ResourceNotFoundException
-							("La cuenta no existe con el id: " + id));
-			return ResponseEntity.ok(account);
+			return accountService.findByYd(id);
 		}
 		
 		@PutMapping("/accounts/{id}")
 		public ResponseEntity<Account> updateAccount(@PathVariable Long id,
 												@RequestBody Account accountDetails){
-			Account account = accountRepository.findById(id)
-					.orElseThrow(() -> new ResourceNotFoundException
-							("La cuenta no existe con el id: " + id));
-			account.setTypeId(accountDetails.getTypeId());
-			account.setDateBorn(accountDetails.getDateBorn());
-			account.setStateId(accountDetails.getStateId());
-			account.setUser(accountDetails.getUser());
-			account.setLastRent(accountDetails.getLastRent());
-			account.setCountRent(accountDetails.getCountRent());
-			account.setPrice(accountDetails.getPrice());
-			account.setLoginEmail(accountDetails.getLoginEmail());
-			account.setPassword(accountDetails.getPassword());
-			
-			Account updateAccount = accountRepository.save(account);
-			return ResponseEntity.ok(updateAccount);
+			return accountService.updateAccount(id, accountDetails);
 		}
 		
 		@DeleteMapping("/accounts/{id}")
@@ -96,5 +80,11 @@ public class AccountController {
 			return ResponseEntity.ok(accountService.getByStateId(stateId));
 		}
 		
+		@GetMapping("/search")
+		public ResponseEntity <List <Account>> search(@RequestParam(required = false, name = "typeId") final String typeId , 
+														@RequestParam(required = false, name = "stateId") final String stateId){
+			List <Account> response = accountService.searchAccounts(typeId, stateId);
+			return ResponseEntity.ok(response);
+		}
 	
 }
